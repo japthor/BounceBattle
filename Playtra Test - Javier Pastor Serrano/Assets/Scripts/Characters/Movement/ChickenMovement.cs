@@ -87,27 +87,24 @@ public class ChickenMovement : FighterMovement
   // Collision between the chicken and other units.
   protected override void OnCollisionEnter(Collision collision)
   {
-    if (collision.collider.CompareTag("Wolf"))
+    if (collision.collider.CompareTag("Wolf") || collision.collider.CompareTag("Pig"))
     {
-      Wolf unit = collision.collider.GetComponent<Wolf>();
+      Unit unit = collision.collider.GetComponent<Unit>();
 
-      if(unit != null)
+      if (unit != null)
       {
         CollisionForce(unit, GameManager.m_Instance.PushForce);
 
-        if(IsMoving)
-          unit.TakeDamage(StaminaUsed);
+        if (IsMoving && unit is Wolf)
+        {
+          Wolf wolf = collision.collider.GetComponent<Wolf>();
+
+          if(wolf != null)
+           wolf.TakeDamage(StaminaUsed);
+        }
+
+        Collided = true;
       }
-
     }
-    else if (collision.collider.CompareTag("Pig"))
-    {
-      Pig unit = collision.collider.GetComponent<Pig>();
-
-      if (unit != null)
-        CollisionForce(unit, GameManager.m_Instance.PushForce);
-    }
-
-    Collided = true;
   }
 }

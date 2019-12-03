@@ -123,10 +123,10 @@ public class AIPig : PeacefulMovement
   {
     if (collision.collider.CompareTag("Wolf") || collision.collider.CompareTag("Chicken"))
     {
-      Fighter unit = collision.gameObject.GetComponent<Fighter>();
+      Fighter fighter = collision.gameObject.GetComponent<Fighter>();
 
-      if(unit != null)
-        m_Pig.Captured(unit);
+      if(fighter != null)
+        m_Pig.Captured(fighter);
     }
   }
   #endregion

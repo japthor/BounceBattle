@@ -176,34 +176,28 @@ public class AIWolf : FighterMovement
   {
     base.OnCollisionEnter(collision);
 
-    if (collision.collider.CompareTag("Chicken"))
-    {
-      Chicken unit = collision.collider.GetComponent<Chicken>();
-
-      if (unit != null)
-      {
-        CollisionForce(unit, GameManager.m_Instance.PushForce);
-
-        if (IsMoving)
-          unit.TakeDamage(StaminaUsed);
-
-        Collided = true;
-      }
-    }
-    else if (collision.collider.CompareTag("Wolf") || collision.collider.CompareTag("Pig"))
+    if (collision.collider.CompareTag("Chicken") || collision.collider.CompareTag("Wolf") ||
+        collision.collider.CompareTag("Pig"))
     {
       Unit unit = collision.collider.GetComponent<Unit>();
 
-      if (unit != null)
+      if(unit != null)
       {
         CollisionForce(unit, GameManager.m_Instance.PushForce);
 
-        if (unit as Pig)
+        if (IsMoving && unit is Chicken)
+        {
+          Chicken chicken = GameManager.m_Instance.Chicken;
+
+          if (chicken != null)
+            chicken.TakeDamage(StaminaUsed);
+        }
+
+        if (unit is Pig || unit is Chicken)
           Collided = true;
       }
     }
   }
-  // Collision between the wolf and other units.
   
   #endregion
 }
