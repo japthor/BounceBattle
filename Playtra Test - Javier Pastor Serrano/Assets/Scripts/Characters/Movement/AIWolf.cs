@@ -5,18 +5,20 @@ public class AIWolf : FighterMovement
 {
   #region Variables
   [Header("Variables")]
-  // Time for deciding the next state.
+  // Waiting Time
   [SerializeField] private float m_Time = 0.0f;
   // Minimum health to make the wolf run away.
   [SerializeField] private float m_MinHealthToRun = 0.0f;
-  // Probability percentage to make the wolf run away.
+  // Probability (%) to make the wolf wait.
+  [Range(0.0f, 100.0f)] [SerializeField] private float m_PercentageToWait = 0.0f;
+  // Probability (%) to make the wolf run away.
   [Range(0.0f, 100.0f)] [SerializeField] private float m_PercentageToRunAway = 0.0f;
   // Reference to the Wolf script.
   private Wolf m_Wolf;
-  // Time left.
+  // Time left from the Waiting time.
   private float m_TimeLeft;
   // States
-  private enum StatesWolf { Idle, AttackChicken, RunAway, AttackPig };
+  private enum StatesWolf { Idle, Wait, AttackChicken, RunAway, AttackPig };
   private StatesWolf m_State;
   #endregion
 
@@ -34,7 +36,7 @@ public class AIWolf : FighterMovement
   }
 
   #region Mind
-  // States Logic.
+  // States Logic (Update).
   public void States()
   {
     if (GameManager.m_Instance.Chicken != null && m_Wolf != null)
@@ -43,6 +45,10 @@ public class AIWolf : FighterMovement
       {
         case StatesWolf.Idle:
           Idle();
+          break;
+
+        case StatesWolf.Wait:
+          Wait();
           break;
 
         case StatesWolf.AttackChicken:
@@ -65,8 +71,17 @@ public class AIWolf : FighterMovement
   // Idle state.
   private void Idle()
   {
-    if (TimeLeft() & HasMinStamina(m_Wolf))
+    if (HasMinStamina(m_Wolf))
+    {
+      IsMovingCollision = false;
       DecideMovement();
+    }
+  }
+  // Wait State
+  private void Wait()
+  {
+    if (TimeLeft())
+      m_State = StatesWolf.Idle;
   }
   // Attack chicken state.
   private void AttackChicken()
@@ -108,38 +123,44 @@ public class AIWolf : FighterMovement
 
     return false;
   }
-  // Consumes a random number of stamina.
+  // Consumes a random quantity of stamina.
   private void ConsumeRandomStamina()
   {
-    int stamina = Random.Range(1, m_Wolf.Stamina + 1);
+    int stamina = Random.Range(m_Wolf.MinStaminaMove, m_Wolf.Stamina + 1);
     ConsumeStamina(m_Wolf, stamina);
   }
   // Decides the next state.
   private void DecideMovement()
   {
-    if (m_Wolf.Health < m_MinHealthToRun)
-    {
-      float percentage = Random.Range(0.0f, 100.0f);
+    float percentageToWait = Random.Range(0.0f, 100.0f);
 
-      if (percentage > m_PercentageToRunAway && GameManager.m_Instance.PigList.Count > 0)
+    if (percentageToWait < m_PercentageToWait)
+      m_State = StatesWolf.Wait;
+    else
+    {
+      if (m_Wolf.Health < m_MinHealthToRun)
       {
-        m_State = StatesWolf.AttackPig;
-        ObjectiveDir = GenerateDirection(GameManager.m_Instance.PigList[Random.Range(0, GameManager.m_Instance.PigList.Count)]);
+        float percentageToRun = Random.Range(0.0f, 100.0f);
+
+        if (percentageToRun < m_PercentageToRunAway && GameManager.m_Instance.PigList.Count > 0)
+        {
+          m_State = StatesWolf.AttackPig;
+          ObjectiveDir = GenerateDirection(GameManager.m_Instance.PigList[Random.Range(0, GameManager.m_Instance.PigList.Count)]);
+        }
+        else
+        {
+          m_State = StatesWolf.RunAway;
+          ObjectiveDir = GenerateDirection(GameManager.m_Instance.Chicken) * -1.0f;
+        }
       }
       else
       {
-        m_State = StatesWolf.RunAway;
-        ObjectiveDir = GenerateDirection(GameManager.m_Instance.Chicken) * -1.0f;
+        m_State = StatesWolf.AttackChicken;
+        ObjectiveDir = GenerateDirection(GameManager.m_Instance.Chicken);
       }
 
+      IsMoving = true;
     }
-    else
-    {
-      m_State = StatesWolf.AttackChicken;
-      ObjectiveDir = GenerateDirection(GameManager.m_Instance.Chicken);
-    }
-
-    IsMoving = true;
   }
   // Movement cycle.
   private void Movement()
@@ -150,28 +171,29 @@ public class AIWolf : FighterMovement
       ConsumeRandomStamina();
       GenerateDistanceToTravel(m_Wolf);
       SetVelocity(m_Wolf);
-      IsUpdating = true;
+      m_Wolf.StopCoroutineStaminaBar();
       HasInitialized = true;
     }
     else
     {
-      if (HasTravelledDistance() || Collided)
+      if (HasTravelledDistance())
       {
-        ResetValues();
         StopVelocity();
+        ResetValues();
         m_Wolf.StartCoroutineStaminaBar();
       }
       else
         CalculateTravelledDistance(m_Wolf);
     }
   }
-  // Update for physics...
+  // Update for physics.
   private void LateUpdate()
   {
-    if (IsUpdating && m_Wolf != null)
-      MovePosition(m_Wolf, ObjectiveDir);
+    MovePosition(m_Wolf, ObjectiveDir);
+    ReduceCollisionVelocity(m_Wolf);
   }
-  // Collision between the wolf and other units.
+
+  // Collision logic between the wolf and other units.
   protected override void OnCollisionEnter(Collision collision)
   {
     base.OnCollisionEnter(collision);
@@ -181,9 +203,9 @@ public class AIWolf : FighterMovement
     {
       Unit unit = collision.collider.GetComponent<Unit>();
 
-      if(unit != null)
+      if (unit != null)
       {
-        CollisionForce(unit, GameManager.m_Instance.PushForce);
+        UnitCollisionForce(unit, GameManager.m_Instance.PushForce + StaminaUsed);
 
         if (IsMoving && unit is Chicken)
         {
@@ -191,13 +213,15 @@ public class AIWolf : FighterMovement
 
           if (chicken != null)
             chicken.TakeDamage(StaminaUsed);
+
         }
 
-        if (unit is Pig || unit is Chicken)
-          Collided = true;
+        ResetValues();
+        m_Wolf.StopCoroutineStaminaBar();
+        IsMovingCollision = true;
       }
     }
   }
-  
+
   #endregion
 }

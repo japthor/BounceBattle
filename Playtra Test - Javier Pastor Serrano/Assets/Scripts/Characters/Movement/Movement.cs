@@ -12,10 +12,6 @@ public abstract class Movement : MonoBehaviour
   private Vector3 m_ObjectiveDir;
   // Checks if the unit is moving.
   private bool m_IsMoving;
-  /* Checks if the unit is moving, so it can
-   * make the movement inside LateUpdate.
-   * */
-  private bool m_IsUpdating;
   #endregion
 
   #region Setters/Getters
@@ -27,11 +23,6 @@ public abstract class Movement : MonoBehaviour
   {
     get { return m_IsMoving; }
     set { m_IsMoving = value; }
-  }
-  public bool IsUpdating
-  {
-    get { return m_IsUpdating; }
-    set { m_IsUpdating = value; }
   }
   public Vector3 ObjectiveDir
   {
@@ -47,7 +38,6 @@ public abstract class Movement : MonoBehaviour
   protected virtual void Start()
   {
     m_ObjectiveDir = Vector3.zero;
-    m_IsUpdating = false;
     m_IsMoving = false;
   }
 
@@ -83,7 +73,22 @@ public abstract class Movement : MonoBehaviour
   // Moves the unit.
   protected void MovePosition(Unit unit, Vector3 direction)
   {
-    m_RigidBody.MovePosition(m_RigidBody.position + direction * Time.deltaTime * unit.Speed);
+    if (IsMoving && unit != null)
+      m_RigidBody.MovePosition(m_RigidBody.position + direction * Time.fixedDeltaTime * unit.Speed);
+  }
+  // Reduces the velocity
+  protected void ReduceVelocity(float minimum)
+  {
+    if (RigidBody.velocity.magnitude > minimum)
+      RigidBody.velocity -= RigidBody.velocity * Time.fixedDeltaTime;
+  }
+  // Checks if the velocity has been reduced.
+  protected bool IsVelocityReduced(float minimum)
+  {
+    if (RigidBody.velocity.magnitude > minimum)
+      return false;
+
+    return true;
   }
   // Stops the actual velocity of the unit.
   protected void StopVelocity()
@@ -91,11 +96,10 @@ public abstract class Movement : MonoBehaviour
     m_RigidBody.velocity = Vector3.zero;
   }
   // Collision.
-  protected virtual void OnCollisionEnter(Collision collision) { }
-  // Pushes the unit.
-  protected void CollisionForce(Unit unit, float force)
+  protected void UnitCollisionForce(Unit unit, float force)
   {
     Vector3 dir = (unit.transform.position - transform.position).normalized;
-    RigidBody.AddForce(-dir * force);
+    RigidBody.velocity = -dir * force;
   }
+  protected virtual void OnCollisionEnter(Collision collision){}
 }

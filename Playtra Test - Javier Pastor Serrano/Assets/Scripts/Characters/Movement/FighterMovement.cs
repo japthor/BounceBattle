@@ -13,8 +13,8 @@ public abstract class FighterMovement : Movement
   private float m_DistanceToTravel;
   // The stamina used to make the movement.
   private int m_StaminaUsed;
-  // Checks if the fighter unit has collided.
-  private bool m_Collided;
+  // Checks if the fighter is moving because of a collision.
+  private bool m_IsMovingCollision;
   // Checks if the movement has initialized before setting some variables.
   private bool m_HasInitialized;
   #endregion
@@ -40,10 +40,10 @@ public abstract class FighterMovement : Movement
     get { return m_StaminaUsed; }
     set { m_StaminaUsed = value; }
   }
-  public bool Collided
+  public bool IsMovingCollision
   {
-    get { return m_Collided; }
-    set { m_Collided = value; }
+    get { return m_IsMovingCollision; }
+    set { m_IsMovingCollision = value; }
   }
   public bool HasInitialized
   {
@@ -59,12 +59,11 @@ public abstract class FighterMovement : Movement
     m_LastPosition = Vector3.zero;
     m_TravelledDistance = 0.0f;
     m_DistanceToTravel = 0.0f;
-    m_Collided = false;
+    m_IsMovingCollision = false;
     m_LastPosition = transform.position;
     m_StaminaUsed = 0;
     HasInitialized = false;
   }
-
   // Sets the velocity of the fighter unit.
   protected void SetVelocity(Fighter unit)
   {
@@ -103,17 +102,30 @@ public abstract class FighterMovement : Movement
     unit.UseStamina(stamina);
     m_StaminaUsed = stamina;
   }
+  //Reduces the velocity when collided.
+  protected void ReduceCollisionVelocity(Fighter fighter)
+  {
+    if (m_IsMovingCollision)
+    {
+      ReduceVelocity(0.1f);
+
+      if (IsVelocityReduced(0.1f))
+      {
+        StopVelocity();
+        fighter.StartCoroutineStaminaBar();
+        m_IsMovingCollision = false;
+      }
+    }
+  }
   // Reset some variables.
   protected void ResetValues()
   {
     m_TravelledDistance = 0.0f;
     m_DistanceToTravel = 0.0f;
-    m_Collided = false;
     m_LastPosition = transform.position;
     IsMoving = false;
     m_StaminaUsed = 0;
     HasInitialized = false;
-    IsUpdating = false;
   }
   // Collision logic.
   protected override void OnCollisionEnter(Collision collision)
@@ -121,6 +133,9 @@ public abstract class FighterMovement : Movement
     base.OnCollisionEnter(collision);
 
     if (collision.collider.CompareTag("Edge"))
-      Collided = true;
+    {
+      StopVelocity();
+      m_IsMovingCollision = true;
+    }
   }
 }

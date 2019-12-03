@@ -123,7 +123,7 @@ public abstract class Fighter : Unit
   // Health regeneration coroutine.
   private IEnumerator RegenerateHealth()
   {
-    while (m_Health + m_HealthPS < m_MaxHealth)
+    while (m_Health < m_MaxHealth)
     {
       yield return new WaitForSeconds(1.0f);
       m_Health += m_HealthPS;
@@ -138,7 +138,7 @@ public abstract class Fighter : Unit
   // Stamina regeneration coroutine.
   private IEnumerator RegenerateStamina()
   {
-    while (m_Stamina + m_StaminaPS < m_MaxStamina)
+    while (m_Stamina < m_MaxStamina)
     {
       yield return new WaitForSeconds(1.0f);
       m_Stamina += m_StaminaPS;
@@ -149,7 +149,7 @@ public abstract class Fighter : Unit
     UpdateBar(m_StaminaBar);
     m_StaminaCoroutine = null;
   }
-  // Takes Damage
+  // Takes Damage & Checks if is dead.
   public void TakeDamage(float damage)
   {
     if (m_Health - damage <= 0.0f)
@@ -218,13 +218,15 @@ public abstract class Fighter : Unit
       bar.SetSize((float)m_Stamina / (float)m_MaxStamina);
 
   }
-  // Checks if the unit is dead.
+  // Checks if the unit is dead & if the game is over.
   public void IsDead()
   {
     if (m_Health <= 0.0f)
     {
       GameManager.m_Instance.RemoveUnitFromList(this);
-      Destroy(this.gameObject);
+
+      if(!GameManager.m_Instance.IsGameOver())
+        Destroy(this.gameObject);
     }
   }
 }

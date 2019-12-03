@@ -288,7 +288,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 0, y: 21, z: -16.5}
+  m_LocalPosition: {x: 0, y: 26, z: -21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -344,11 +344,11 @@ MonoBehaviour:
   m_MinTotalPigs: 2
   m_WolfPrefab: {fileID: 5097333464878179677, guid: 1da4969df6928e14c8a95428b76081ce,
     type: 3}
-  m_MaxTotalWolfs: 6
-  m_MinTotalWolfs: 4
+  m_MaxTotalWolfs: 4
+  m_MinTotalWolfs: 6
   m_Map: {fileID: 1087437800}
   m_OffsetY: 1.5
-  m_PushForce: 100
+  m_PushForce: 4
 --- !u!4 &1769969042
 Transform:
   m_ObjectHideFlags: 0
@@ -436,6 +436,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8621662110209332498, guid: 800a7d6a308e3dc41876096b4a0ba7ff,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 8621662110209332498, guid: 800a7d6a308e3dc41876096b4a0ba7ff,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8621662110209332510, guid: 800a7d6a308e3dc41876096b4a0ba7ff,
         type: 3}

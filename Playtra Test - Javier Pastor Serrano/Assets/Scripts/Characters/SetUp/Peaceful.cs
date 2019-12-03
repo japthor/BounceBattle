@@ -4,9 +4,9 @@ public abstract class Peaceful : Unit
 {
   #region Variables
   [Header("Benefits")]
-  // Bonus points to add to the unit health.
+  // Bonus points to add to the collided unit health.
   [SerializeField] private int m_BonusHealth = 0;
-  // Bonus points to add to the unit stamina.
+  // Bonus points to add to the collided unit stamina.
   [SerializeField] private int m_BonusStamina = 0;
   #endregion
 
@@ -18,7 +18,7 @@ public abstract class Peaceful : Unit
     Speed = MaxSpeed;
   }
 
-  //Logic when the peaceful unit has collided.
+  //Logic when the peaceful unit has collided with a fighter unit.
   public void Captured(Fighter unit)
   {
     AddBonus(unit);

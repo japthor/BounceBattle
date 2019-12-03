@@ -56,7 +56,7 @@ public class InputManager : MonoBehaviour
     else if (Input.GetMouseButtonUp(0))
       m_InputTouched = false;
   }
-  // Gets the mouse position.
+  // Gets the mouse position and sets the variable.
   private void SetMousePosition()
   {
     m_InputPosition = Input.mousePosition;

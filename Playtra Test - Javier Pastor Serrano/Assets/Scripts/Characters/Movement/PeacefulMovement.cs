@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class PeacefulMovement : Movement
@@ -29,6 +28,7 @@ public abstract class PeacefulMovement : Movement
     base.Awake();
     m_DetectedEnemies = new List<Fighter>();
   }
+
   // Adss a fighter unit to the list.
   protected void AddFighterToList(Fighter fighter)
   {

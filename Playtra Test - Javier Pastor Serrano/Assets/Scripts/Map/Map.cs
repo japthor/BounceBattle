@@ -12,7 +12,7 @@ public class Map : MonoBehaviour
   [SerializeField] private PhysicMaterial m_ColliderMat = null;
 
   [Header("Variables")]
-  // Radius offset fos spawning correctly inside the sphere.
+  // Radius offset for spawning correctly inside the sphere.
   [SerializeField] private float m_RadiusOffset = 0;
 
   // Reference to the Renderer.

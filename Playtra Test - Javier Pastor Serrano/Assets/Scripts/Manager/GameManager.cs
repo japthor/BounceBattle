@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
   // Spawns the Pigs
   private void SpawnPigs()
   {
-    int value = Random.Range(m_MinTotalPigs, m_MaxTotalPigs);
+    int value = Random.Range(m_MinTotalPigs, m_MaxTotalPigs + 1);
 
     for (int i = 0; i < value; i++)
     {
@@ -121,7 +121,7 @@ public class GameManager : MonoBehaviour
   // Spawns the Wolfs
   private void SpawnWolfs()
   {
-    int value = Random.Range(m_MinTotalWolfs, m_MaxTotalWolfs);
+    int value = Random.Range(m_MinTotalWolfs, m_MaxTotalWolfs + 1);
 
     for (int i = 0; i < value; i++)
     {
@@ -130,13 +130,13 @@ public class GameManager : MonoBehaviour
       m_FighterList.Add(go.GetComponent<Fighter>());
     }
   }
-  // Returns the a Gameobject that has been randomly spawned inside an area.
+  // Returns a Gameobject that has been spawned randomly inside an area.
   private GameObject RandomSpawn(GameObject go)
   {
     Vector3 point = m_Map.PointArea();
     return Instantiate(go, new Vector3(point.x, m_OffsetY, point.z), go.transform.rotation);
   }
-  // Returns the a Gameobject that has been spawned inside an area.
+  // Returns a Gameobject that has been spawned inside an area.
   private GameObject Spawn(GameObject go, Vector3 point)
   {
     var gameObject = Instantiate(go, new Vector3(point.x, m_OffsetY, point.z), go.transform.rotation);
@@ -157,23 +157,18 @@ public class GameManager : MonoBehaviour
       m_FighterList.Remove((Fighter)unit);
 
       if (unit is Wolf)
-      {
         m_WolfList.Remove((Wolf)unit);
-        CheckGameOver();
-      }
-      else if (unit is Chicken)
-        ReturnToMainMenu();
     }
-
-    CheckGameOver();
   }
-  // Checks if the game is over
-  private void CheckGameOver()
+  // Checks if the game is over.
+  public bool IsGameOver()
   {
-    if (m_WolfList.Count == 0)
+    if (m_WolfList.Count == 0 || m_Chicken.Health <= 0.0f)
       ReturnToMainMenu();
+
+    return false;
   }
-  // Returns to the main menu.
+  // Returns to Main Menu.
   private void ReturnToMainMenu()
   {
     SceneManager.LoadScene(0);

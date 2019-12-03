@@ -10,7 +10,7 @@ public class Arrow : MonoBehaviour
   [SerializeField] private UIBar m_ForceBar = null;
 
   [Header("Variables")]
-  // Reference to the force bar.
+  // Maximum distance the touch/mouse can reach from the Initial Input Position.
   [SerializeField] private float m_MaximumDistance = 0.0f;
 
   // The force to apply to the movement.
@@ -46,8 +46,8 @@ public class Arrow : MonoBehaviour
   }
 
   /* 
-   * Calculates the rotation depending of the position of the
-     click/touch and the actual position of object.
+   * Calculates the rotation depending of the direction between
+     the position of the click/touch and the actual position of object.
   */
   private void CalculateRotation()
   {
@@ -59,8 +59,9 @@ public class Arrow : MonoBehaviour
     transform.rotation = Quaternion.Euler(-90.0f, 0.0f, -angle);
   }
   /* 
-   * Calculates the force depending of the position of the first
-     click/touch and the actual position of the mouse/finger.
+   * Calculates the force depending ofthe distance between the
+     position of the first click/touch and the actual position 
+     of the mouse/finger.
   */
   private void CalculateForce()
   {

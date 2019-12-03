@@ -23,7 +23,7 @@ public class AIPig : PeacefulMovement
   }
 
   #region Mind
-  // States Logic.
+  // States (Update).
   public void States()
   {
     if (GameManager.m_Instance.Chicken != null && m_Pig != null)
@@ -61,7 +61,7 @@ public class AIPig : PeacefulMovement
   #endregion
 
   #region Body
-  // Starts the movement when a fighter is detected.
+  // Starts the movement when one fighter is near.
   private bool IsEnemyDetected()
   {
     CheckAllEnemiesDistances();
@@ -69,13 +69,12 @@ public class AIPig : PeacefulMovement
     if (DetectedEnemies.Count > 0)
     {
       IsMoving = true;
-      IsUpdating = true;
       return true;
     }
 
     return false;
   }
-  // Adds or removes the fighters from the list if it is near the pig.
+  // Adds or removes the fighters from the list if it's near.
   private void CheckAllEnemiesDistances()
   {
     if (GameManager.m_Instance.FighterList.Count > 0)
@@ -106,19 +105,15 @@ public class AIPig : PeacefulMovement
         }
       }
       else
-      {
-        IsUpdating = false;
         IsMoving = false;
-      }
     }
   }
-  // Update for physics...
+  // Update for physics.
   private void LateUpdate()
   {
-    if (IsUpdating && m_Pig != null)
-      MovePosition(m_Pig, ObjectiveDir);
+    MovePosition(m_Pig, ObjectiveDir);
   }
-  // Collision between the pig and other units.
+  // Collision logic between the pig and other units.
   protected override void OnCollisionEnter(Collision collision)
   {
     if (collision.collider.CompareTag("Wolf") || collision.collider.CompareTag("Chicken"))

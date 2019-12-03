@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4bfb83412230bb46ad9f2fe159dc1a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MaxSpeed: 2
+  m_MaxSpeed: 2.5
   m_MinSpeed: 1
   m_MaxHealth: 8
   m_MinHealth: 6
@@ -133,7 +133,7 @@ MonoBehaviour:
   m_MaxStamina: 4
   m_MinStamina: 3
   m_StaminaPS: 1
-  m_MinStaminaMove: 2
+  m_MinStaminaMove: 1
   m_MaxStaminaConsume: 4
   m_HealthBar: {fileID: 8513004010098901234}
   m_StaminaBar: {fileID: 2423386627042030526}
@@ -151,6 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 1
   m_MinHealthToRun: 2
+  m_PercentageToWait: 60
   m_PercentageToRunAway: 75
 --- !u!1001 &2924964723366833204
 PrefabInstance:

@@ -23,19 +23,20 @@ public class ChickenMovement : FighterMovement
   // Starts the movement.
   public void StartMovement()
   {
-    if(m_Chicken != null)
+    if(m_Chicken != null && HasMinStamina(m_Chicken))
     {
       ResetValues();
+      IsMovingCollision = false;
       IsMoving = true;
     }
   }
-  // Checks if the chicken is moving.
+  // Checks if the chicken is moving (Update).
   public void Moving()
   {
     if (IsMoving && m_Chicken != null)
       Movement();
   }
-  // Cakculates the stamina depending of the Bar force.
+  // Calculates the stamina that the chicken is going to use.
   private void CalculateStamina()
   {
     int stamina = Mathf.RoundToInt(m_Chicken.Arrow.Force * (float)m_Chicken.Stamina);
@@ -52,22 +53,17 @@ public class ChickenMovement : FighterMovement
     {
       if (!HasInitialized)
       {
-        if (HasMinStamina(m_Chicken))
-        {
-          StopVelocity();
-          CalculateStamina();
-          GenerateDistanceToTravel(m_Chicken);
-          SetVelocity(m_Chicken);
-          ObjectiveDir = m_Chicken.Arrow.transform.right;
-          IsUpdating = true;
-          HasInitialized = true;
-        }
-        else
-          ResetValues();
+        StopVelocity();
+        CalculateStamina();
+        GenerateDistanceToTravel(m_Chicken);
+        SetVelocity(m_Chicken);
+        ObjectiveDir = m_Chicken.Arrow.transform.right;
+        m_Chicken.StopCoroutineStaminaBar();
+        HasInitialized = true;
       }
       else
       {
-        if (HasTravelledDistance() || Collided)
+        if (HasTravelledDistance())
         {
           StopVelocity();
           ResetValues();
@@ -78,22 +74,24 @@ public class ChickenMovement : FighterMovement
       }
     }
   }
-  // Update for physics...
+  // Update for physics.
   private void LateUpdate()
   {
-    if(IsUpdating && m_Chicken != null)
-      MovePosition(m_Chicken, ObjectiveDir);
+    MovePosition(m_Chicken, ObjectiveDir);
+    ReduceCollisionVelocity(m_Chicken);
   }
-  // Collision between the chicken and other units.
+  // Collision logic between the chicken and other units.
   protected override void OnCollisionEnter(Collision collision)
   {
+    base.OnCollisionEnter(collision);
+
     if (collision.collider.CompareTag("Wolf") || collision.collider.CompareTag("Pig"))
     {
       Unit unit = collision.collider.GetComponent<Unit>();
 
       if (unit != null)
       {
-        CollisionForce(unit, GameManager.m_Instance.PushForce);
+        UnitCollisionForce(unit, GameManager.m_Instance.PushForce + StaminaUsed);
 
         if (IsMoving && unit is Wolf)
         {
@@ -103,7 +101,9 @@ public class ChickenMovement : FighterMovement
            wolf.TakeDamage(StaminaUsed);
         }
 
-        Collided = true;
+        ResetValues();
+        m_Chicken.StopCoroutineStaminaBar();
+        IsMovingCollision = true;
       }
     }
   }
