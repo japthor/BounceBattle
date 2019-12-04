@@ -2,27 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Unit))]
 public abstract class Movement : MonoBehaviour
 {
   #region Variables
-  // Reference to the rigidbody.
-  private Rigidbody m_RigidBody;
   // Direction to move.
   private Vector3 m_ObjectiveDir;
   // Checks if the unit is moving.
-  private bool m_IsMoving;
+  private bool m_IsMovingNormal;
   #endregion
 
   #region Setters/Getters
-  public Rigidbody RigidBody
+  public bool IsMovingNormal
   {
-    get { return m_RigidBody; }
-  }
-  public bool IsMoving
-  {
-    get { return m_IsMoving; }
-    set { m_IsMoving = value; }
+    get { return m_IsMovingNormal; }
+    set { m_IsMovingNormal = value; }
   }
   public Vector3 ObjectiveDir
   {
@@ -31,14 +25,10 @@ public abstract class Movement : MonoBehaviour
   }
   #endregion
 
-  protected virtual void Awake()
-  {
-    m_RigidBody = GetComponent<Rigidbody>();
-  }
   protected virtual void Start()
   {
     m_ObjectiveDir = Vector3.zero;
-    m_IsMoving = false;
+    IsMovingNormal = false;
   }
 
   // Checks the distance between an unit and itself.
@@ -73,33 +63,41 @@ public abstract class Movement : MonoBehaviour
   // Moves the unit.
   protected void MovePosition(Unit unit, Vector3 direction)
   {
-    if (IsMoving && unit != null)
-      m_RigidBody.MovePosition(m_RigidBody.position + direction * Time.fixedDeltaTime * unit.Speed);
+    if (IsMovingNormal && unit != null)
+      unit.RigidBody.MovePosition(unit.RigidBody.position + direction * Time.fixedDeltaTime * unit.Speed);
   }
   // Reduces the velocity
-  protected void ReduceVelocity(float minimum)
+  protected void ReduceVelocity(Unit unit, float minimum)
   {
-    if (RigidBody.velocity.magnitude > minimum)
-      RigidBody.velocity -= RigidBody.velocity * Time.fixedDeltaTime;
+    if (unit.RigidBody.velocity.magnitude > minimum)
+      unit.RigidBody.velocity -= unit.RigidBody.velocity * Time.fixedDeltaTime;
   }
   // Checks if the velocity has been reduced.
-  protected bool IsVelocityReduced(float minimum)
+  protected bool IsVelocityReduced(Unit unit, float minimum)
   {
-    if (RigidBody.velocity.magnitude > minimum)
+    if (unit.RigidBody.velocity.magnitude > minimum)
       return false;
 
     return true;
   }
   // Stops the actual velocity of the unit.
-  protected void StopVelocity()
+  protected void StopVelocity(Unit unit)
   {
-    m_RigidBody.velocity = Vector3.zero;
+    unit.RigidBody.velocity = Vector3.zero;
   }
-  // Collision.
-  protected void UnitCollisionForce(Unit unit, float force)
+  // Collision with another unit.
+  protected void UnitPush(Unit unit, float force)
   {
-    Vector3 dir = (unit.transform.position - transform.position).normalized;
-    RigidBody.velocity = -dir * force;
+    Vector3 dir = GenerateDirection(unit);
+    unit.RigidBody.velocity = dir * force;
   }
+  // Collision with Edge.
+  protected void EdgePush(Unit unit, float force)
+  {
+    Vector3 dir = (GameManager.m_Instance.Map.transform.position - transform.position).normalized;
+    unit.RigidBody.velocity = -dir * force;
+  }
+
+  // Collision logic.
   protected virtual void OnCollisionEnter(Collision collision){}
 }

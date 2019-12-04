@@ -344,11 +344,10 @@ MonoBehaviour:
   m_MinTotalPigs: 2
   m_WolfPrefab: {fileID: 5097333464878179677, guid: 1da4969df6928e14c8a95428b76081ce,
     type: 3}
-  m_MaxTotalWolfs: 4
-  m_MinTotalWolfs: 6
+  m_MaxTotalWolfs: 6
+  m_MinTotalWolfs: 4
   m_Map: {fileID: 1087437800}
   m_OffsetY: 1.5
-  m_PushForce: 4
 --- !u!4 &1769969042
 Transform:
   m_ObjectHideFlags: 0

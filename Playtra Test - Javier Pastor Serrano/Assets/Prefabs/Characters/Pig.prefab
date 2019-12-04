@@ -125,6 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MaxSpeed: 2.5
   m_MinSpeed: 2.5
+  m_PushForce: 3
   m_BonusHealth: 1
   m_BonusStamina: 1
 --- !u!114 &818518671127337900

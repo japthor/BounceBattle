@@ -127,6 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MaxSpeed: 2.5
   m_MinSpeed: 1
+  m_PushForce: 4
   m_MaxHealth: 8
   m_MinHealth: 6
   m_HealthPS: 0.1

@@ -23,9 +23,8 @@ public abstract class PeacefulMovement : Movement
   }
   #endregion
 
-  protected override void Awake()
+  protected virtual void Awake()
   {
-    base.Awake();
     m_DetectedEnemies = new List<Fighter>();
   }
 

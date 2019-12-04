@@ -9,9 +9,8 @@ public class ChickenMovement : FighterMovement
   private Chicken m_Chicken;
   #endregion
 
-  protected override void Awake()
+  private void Awake()
   {
-    base.Awake();
     m_Chicken = GetComponent<Chicken>();
   }
   protected override void Start()
@@ -20,20 +19,21 @@ public class ChickenMovement : FighterMovement
     LastPosition = transform.position;
   }
 
-  // Starts the movement.
-  public void StartMovement()
+  // Movement call.
+  public void MovementEvent()
   {
     if(m_Chicken != null && HasMinStamina(m_Chicken))
     {
       ResetValues();
       IsMovingCollision = false;
-      IsMoving = true;
+      IsMovingNormal = true;
+      ObjectiveDir = m_Chicken.Arrow.transform.right;
     }
   }
-  // Checks if the chicken is moving (Update).
-  public void Moving()
+  // State
+  public void MovementState()
   {
-    if (IsMoving && m_Chicken != null)
+    if (IsMovingNormal && m_Chicken != null)
       Movement();
   }
   // Calculates the stamina that the chicken is going to use.
@@ -49,29 +49,15 @@ public class ChickenMovement : FighterMovement
   // Movement cycle.
   private void Movement()
   {
-    if (IsMoving)
+    if (IsMovingNormal)
     {
       if (!HasInitialized)
       {
-        StopVelocity();
         CalculateStamina();
-        GenerateDistanceToTravel(m_Chicken);
-        SetVelocity(m_Chicken);
-        ObjectiveDir = m_Chicken.Arrow.transform.right;
-        m_Chicken.StopCoroutineStaminaBar();
-        HasInitialized = true;
+        InitializeMovement(m_Chicken);
       }
       else
-      {
-        if (HasTravelledDistance())
-        {
-          StopVelocity();
-          ResetValues();
-          m_Chicken.StartCoroutineStaminaBar();
-        }
-        else
-          CalculateTravelledDistance(m_Chicken);
-      }
+        CheckTravelledDistance(m_Chicken);
     }
   }
   // Update for physics.
@@ -91,18 +77,17 @@ public class ChickenMovement : FighterMovement
 
       if (unit != null)
       {
-        UnitCollisionForce(unit, GameManager.m_Instance.PushForce + StaminaUsed);
-
-        if (IsMoving && unit is Wolf)
+        if (IsMovingNormal & unit as Wolf)
         {
-          Wolf wolf = collision.collider.GetComponent<Wolf>();
-
-          if(wolf != null)
-           wolf.TakeDamage(StaminaUsed);
+          Wolf wolf = unit as Wolf;
+          wolf.TakeDamage(StaminaUsed);
         }
 
+        UnitPush(unit, unit.PushForce);
         ResetValues();
         m_Chicken.StopCoroutineStaminaBar();
+
+        IsMovingNormal = false;
         IsMovingCollision = true;
       }
     }

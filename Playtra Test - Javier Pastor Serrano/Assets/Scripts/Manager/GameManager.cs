@@ -55,10 +55,6 @@ public class GameManager : MonoBehaviour
   [SerializeField] private Map m_Map = null;
   // Y Offset for spawning.
   [SerializeField] private float m_OffsetY = 0.0f;
-
-  [Header("Others")]
-  // Push force when a unit collides with another.
-  [SerializeField] private int m_PushForce = 0;
   #endregion
 
   #region Setters/Getters
@@ -86,10 +82,6 @@ public class GameManager : MonoBehaviour
   {
     get { return m_Map; }
   }
-  public int PushForce
-  {
-    get { return m_PushForce; }
-  }
   #endregion
 
   private void Start()
@@ -103,8 +95,12 @@ public class GameManager : MonoBehaviour
   private void SpawnChicken()
   {
     GameObject go = Spawn(m_ChickenPrefab, Vector3.zero);
-    m_Chicken = go.GetComponent<Chicken>();
-    FighterList.Add(go.GetComponent<Fighter>());
+
+    Chicken chicken = go.GetComponent<Chicken>();
+    m_Chicken = chicken;
+
+    Fighter fighter = chicken as Fighter;
+    FighterList.Add(fighter);
   }
   // Spawns the Pigs
   private void SpawnPigs()
@@ -114,8 +110,12 @@ public class GameManager : MonoBehaviour
     for (int i = 0; i < value; i++)
     {
       GameObject go = RandomSpawn(m_PigPrefab);
-      m_PigList.Add(go.GetComponent<Pig>());
-      m_PeacefulList.Add(go.GetComponent<Peaceful>());
+
+      Pig pig = go.GetComponent<Pig>();
+      m_PigList.Add(pig);
+
+      Peaceful peaceful = pig as Peaceful;
+      m_PeacefulList.Add(peaceful);
     }
   }
   // Spawns the Wolfs
@@ -126,8 +126,12 @@ public class GameManager : MonoBehaviour
     for (int i = 0; i < value; i++)
     {
       GameObject go = RandomSpawn(m_WolfPrefab);
-      m_WolfList.Add(go.GetComponent<Wolf>());
-      m_FighterList.Add(go.GetComponent<Fighter>());
+
+      Wolf wolf = go.GetComponent<Wolf>();
+      m_WolfList.Add(wolf);
+
+      Fighter fighter = wolf as Fighter;
+      m_FighterList.Add(fighter);
     }
   }
   // Returns a Gameobject that has been spawned randomly inside an area.

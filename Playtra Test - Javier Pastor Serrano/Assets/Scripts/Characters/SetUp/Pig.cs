@@ -8,8 +8,9 @@ public class Pig : Peaceful
   private AIPig m_AI;
   #endregion 
 
-  private void Awake()
+  protected override void Awake()
   {
+    base.Awake();
     m_AI = GetComponent<AIPig>();
   }
   protected override void Start()

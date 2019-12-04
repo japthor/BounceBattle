@@ -22,9 +22,8 @@ public class AIWolf : FighterMovement
   private StatesWolf m_State;
   #endregion
 
-  protected override void Awake()
+  private void Awake()
   {
-    base.Awake();
     m_Wolf = GetComponent<Wolf>();
   }
   protected override void Start()
@@ -86,7 +85,7 @@ public class AIWolf : FighterMovement
   // Attack chicken state.
   private void AttackChicken()
   {
-    if (!IsMoving)
+    if (!IsMovingNormal)
       m_State = StatesWolf.Idle;
     else
       Movement();
@@ -94,7 +93,7 @@ public class AIWolf : FighterMovement
   // Run away state.
   private void RunAway()
   {
-    if (!IsMoving)
+    if (!IsMovingNormal)
       m_State = StatesWolf.Idle;
     else
       Movement();
@@ -102,7 +101,7 @@ public class AIWolf : FighterMovement
   // Attack pig state.
   private void AttackPig()
   {
-    if (!IsMoving)
+    if (!IsMovingNormal)
       m_State = StatesWolf.Idle;
     else
       Movement();
@@ -159,7 +158,7 @@ public class AIWolf : FighterMovement
         ObjectiveDir = GenerateDirection(GameManager.m_Instance.Chicken);
       }
 
-      IsMoving = true;
+      IsMovingNormal = true;
     }
   }
   // Movement cycle.
@@ -167,24 +166,11 @@ public class AIWolf : FighterMovement
   {
     if (!HasInitialized)
     {
-      StopVelocity();
       ConsumeRandomStamina();
-      GenerateDistanceToTravel(m_Wolf);
-      SetVelocity(m_Wolf);
-      m_Wolf.StopCoroutineStaminaBar();
-      HasInitialized = true;
+      InitializeMovement(m_Wolf);
     }
     else
-    {
-      if (HasTravelledDistance())
-      {
-        StopVelocity();
-        ResetValues();
-        m_Wolf.StartCoroutineStaminaBar();
-      }
-      else
-        CalculateTravelledDistance(m_Wolf);
-    }
+      CheckTravelledDistance(m_Wolf);
   }
   // Update for physics.
   private void LateUpdate()
@@ -205,19 +191,17 @@ public class AIWolf : FighterMovement
 
       if (unit != null)
       {
-        UnitCollisionForce(unit, GameManager.m_Instance.PushForce + StaminaUsed);
-
-        if (IsMoving && unit is Chicken)
+        if (IsMovingNormal && unit is Chicken)
         {
-          Chicken chicken = GameManager.m_Instance.Chicken;
-
-          if (chicken != null)
-            chicken.TakeDamage(StaminaUsed);
-
+          Chicken chicken = unit as Chicken;
+          chicken.TakeDamage(StaminaUsed);
         }
 
+        UnitPush(unit, unit.PushForce);
         ResetValues();
         m_Wolf.StopCoroutineStaminaBar();
+
+        IsMovingNormal = false;
         IsMovingCollision = true;
       }
     }

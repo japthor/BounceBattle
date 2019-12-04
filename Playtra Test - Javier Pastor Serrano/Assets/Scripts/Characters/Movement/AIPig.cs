@@ -53,7 +53,7 @@ public class AIPig : PeacefulMovement
   // Run state.
   private void Run()
   {
-    if (!IsMoving)
+    if (!IsMovingNormal)
       m_State = StatesPig.Idle;
     else
       Movement();
@@ -68,7 +68,7 @@ public class AIPig : PeacefulMovement
 
     if (DetectedEnemies.Count > 0)
     {
-      IsMoving = true;
+      IsMovingNormal = true;
       return true;
     }
 
@@ -93,7 +93,7 @@ public class AIPig : PeacefulMovement
   // Movement cycle.
   private void Movement()
   {
-    if (IsMoving)
+    if (IsMovingNormal)
     {
       CheckAllEnemiesDistances();
 
@@ -105,7 +105,7 @@ public class AIPig : PeacefulMovement
         }
       }
       else
-        IsMoving = false;
+        IsMovingNormal = false;
     }
   }
   // Update for physics.
@@ -121,7 +121,10 @@ public class AIPig : PeacefulMovement
       Fighter fighter = collision.gameObject.GetComponent<Fighter>();
 
       if(fighter != null)
+      {
+        UnitPush(fighter, fighter.PushForce);
         m_Pig.Captured(fighter);
+      }
     }
   }
   #endregion

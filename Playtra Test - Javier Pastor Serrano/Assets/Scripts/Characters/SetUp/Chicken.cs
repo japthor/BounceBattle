@@ -30,8 +30,9 @@ public class Chicken : Fighter
     UpdateBar(HealthBar);
 
   }
-  private void Awake()
+  protected override void Awake()
   {
+    base.Awake();
     m_Movement = GetComponent<ChickenMovement>();
   }
   private void Update()
@@ -39,7 +40,7 @@ public class Chicken : Fighter
     if (m_Movement != null && m_Arrow != null)
     {
       Touch();
-      m_Movement.Moving();
+      m_Movement.MovementState();
     }
   }
 
@@ -58,7 +59,7 @@ public class Chicken : Fighter
     else if (!InputManager.m_Instance.InputTouched && m_Clicked)
     {
       m_Arrow.gameObject.SetActive(false);
-      m_Movement.StartMovement();
+      m_Movement.MovementEvent();
       m_Clicked = false;
     }
   }

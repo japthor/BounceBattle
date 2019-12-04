@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public abstract class Unit : MonoBehaviour
 {
   #region Variables
@@ -8,8 +9,12 @@ public abstract class Unit : MonoBehaviour
   [SerializeField] private float m_MaxSpeed = 0.0f;
   // Minimum Speed.
   [SerializeField] private float m_MinSpeed = 0.0f;
+  // Push force when a unit collides with another.
+  [SerializeField] private float m_PushForce = 0.0f;
   // Actual Speed.
   private float m_Speed;
+  // Reference to the rigidbody.
+  private Rigidbody m_RigidBody;
   #endregion
 
   #region Setters/Getters
@@ -28,8 +33,22 @@ public abstract class Unit : MonoBehaviour
     get { return m_Speed; }
     set { m_Speed = value; }
   }
+  public float PushForce
+  {
+    get { return m_PushForce; }
+    set { m_PushForce = value; }
+  }
+  public Rigidbody RigidBody
+  {
+    get { return m_RigidBody; }
+    set { m_RigidBody = value; }
+  }
   #endregion
 
+  protected virtual void Awake()
+  {
+    m_RigidBody = GetComponent<Rigidbody>();
+  }
   protected virtual void Start()
   {
     m_Speed = 0.0f;

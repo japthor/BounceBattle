@@ -64,34 +64,10 @@ public abstract class FighterMovement : Movement
     m_StaminaUsed = 0;
     HasInitialized = false;
   }
-  // Sets the velocity of the fighter unit.
-  protected void SetVelocity(Fighter unit)
-  {
-    unit.Speed = (unit.MaxSpeed / unit.MaxStamina) * m_StaminaUsed;
-  }
-  // Generates the distance to travel.
-  protected void GenerateDistanceToTravel(Fighter unit)
-  {
-    m_DistanceToTravel = (GameManager.m_Instance.Map.HalfDistanceMap.x / unit.MaxStaminaConsume) * m_StaminaUsed;
-  }
   // Checks if the fighter unit has the minimum stamina to make a movement.
   protected bool HasMinStamina(Fighter unit)
   {
     if (unit.Stamina >= unit.MinStaminaMove)
-      return true;
-
-    return false;
-  }
-  // Calculates the travelled distance.
-  protected void CalculateTravelledDistance(Unit unit)
-  {
-    m_TravelledDistance += CheckDistance(unit, m_LastPosition);
-    m_LastPosition = unit.transform.position;
-  }
-  // Checks if the fighter unit has travelled the required distance.
-  protected bool HasTravelledDistance()
-  {
-    if(m_TravelledDistance >= m_DistanceToTravel)
       return true;
 
     return false;
@@ -107,26 +83,65 @@ public abstract class FighterMovement : Movement
   {
     if (m_IsMovingCollision)
     {
-      ReduceVelocity(0.1f);
+      ReduceVelocity(fighter, 0.1f);
 
-      if (IsVelocityReduced(0.1f))
+      if (IsVelocityReduced(fighter, 0.1f))
       {
-        StopVelocity();
+        StopVelocity(fighter);
         fighter.StartCoroutineStaminaBar();
         m_IsMovingCollision = false;
       }
     }
   }
-  // Reset some variables.
+  // Reset the variables from the movement.
   protected void ResetValues()
   {
     m_TravelledDistance = 0.0f;
     m_DistanceToTravel = 0.0f;
     m_LastPosition = transform.position;
-    IsMoving = false;
     m_StaminaUsed = 0;
     HasInitialized = false;
   }
+  // Initializes the movement
+  protected void InitializeMovement(Fighter fighter)
+  {
+    StopVelocity(fighter);
+    GenerateDistanceToTravel(fighter);
+    SetVelocity(fighter);
+    fighter.StopCoroutineStaminaBar();
+    HasInitialized = true;
+  }
+  // Calculates the travelled distance.
+  protected void CheckTravelledDistance(Fighter fighter)
+  {
+    if (m_TravelledDistance >= m_DistanceToTravel)
+    {
+      StopVelocity(fighter);
+      ResetValues();
+      IsMovingNormal = false;
+      fighter.StartCoroutineStaminaBar();
+    }
+    else
+      CalculateTravelledDistance(fighter);
+  }
+
+  // Sets the velocity of the fighter unit.
+  private void SetVelocity(Fighter unit)
+  {
+    unit.Speed = (unit.MaxSpeed / unit.MaxStamina) * m_StaminaUsed;
+  }
+  // Generates the distance to travel.
+  private void GenerateDistanceToTravel(Fighter unit)
+  {
+    m_DistanceToTravel = (GameManager.m_Instance.Map.HalfDistanceMap.x / unit.MaxStaminaConsume) * m_StaminaUsed;
+  }
+  // Calculates the Travelled Distance.
+  private void CalculateTravelledDistance(Fighter fighter)
+  {
+    m_TravelledDistance += CheckDistance(fighter, m_LastPosition);
+    m_LastPosition = fighter.transform.position;
+  }
+
   // Collision logic.
   protected override void OnCollisionEnter(Collision collision)
   {
@@ -134,8 +149,17 @@ public abstract class FighterMovement : Movement
 
     if (collision.collider.CompareTag("Edge"))
     {
-      StopVelocity();
-      m_IsMovingCollision = true;
+      Fighter fighter = GetComponent<Fighter>();
+
+      if (fighter != null)
+      {
+        EdgePush(fighter, fighter.PushForce);
+        ResetValues();
+        fighter.StopCoroutineStaminaBar();
+
+        IsMovingNormal = false;
+        IsMovingCollision = true;
+      }
     }
   }
 }
